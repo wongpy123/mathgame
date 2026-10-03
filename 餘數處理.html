@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小數除法 - 商與餘數大挑戰</title>
+    <link href="https://fonts.googleapis.com/css2?family=Changa+Mono:wght@700&family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4A90E2;
+            --accent-pink: #E91E63;
+            --bg-grad-1: #E0F7FA;
+            --bg-grad-2: #E8EAF6;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-main: #2C3E50;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Zen Maru Gothic', 'PingFang TC', sans-serif;
+            background: linear-gradient(135deg, var(--bg-grad-1), var(--bg-grad-2));
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-main);
+            padding: 15px;
+        }
+
+        .game-app {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            padding: 25px;
+            position: relative;
+            border: 4px solid #FFF;
+        }
+
+        .header-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #FFF;
+            padding: 12px 24px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2rem;
+            font-weight: 900;
+        }
+
+        .star-icon { color: #FFB300; font-size: 1.5rem; }
+        .heart-icon { color: #FF5252; font-size: 1.4rem; }
+
+        .progress-bar-container {
+            width: 160px;
+            height: 14px;
+            background: #E0E0E0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 20%;
+            background: linear-gradient(90deg, #FFB300, #FF8F00);
+            transition: width 0.4s ease;
+        }
+
+        .question-card {
+            background: #F9FAFB;
+            border: 2px solid #E5E7EB;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .question-title {
+            font-size: 1.3rem;
+            color: #1E293B;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .two-column-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 650px) {
+            .two-column-display { grid-template-columns: 1fr; }
+        }
+
+        .horizontal-box, .vertical-box {
+            background: #FFF;
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #CBD5E1;
+        }
+
+        .box-label {
+            font-size: 0.95rem;
+            color: #64748B;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .math-horizontal {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #2563EB;
+        }
+
+        .vertical-pink-container {
+            font-family: 'Changa Mono', 'Courier New', monospace;
+            color: var(--accent-pink);
+            font-weight: 700;
+            line-height: 1.15;
+            display: inline-block;
+            text-align: right;
+            font-size: 1.7rem;
+            letter-spacing: 2px;
+        }
+
+        .v-row {
+            display: flex;
+            justify-content: flex-end;
+            white-space: pre;
+        }
+
+        .v-division-line {
+            border-top: 3px solid var(--accent-pink);
+            margin-top: 2px;
+            padding-top: 2px;
+        }
+
+        .v-symbol-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .v-bracket {
+            border-left: 3px solid var(--accent-pink);
+            border-top: 3px solid var(--accent-pink);
+            border-top-left-radius: 8px;
+            padding-left: 6px;
+            display: inline-block;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .opt-btn {
+            background: #FFF;
+            border: 2px solid #E2E8F0;
+            border-radius: 16px;
+            padding: 14px 20px;
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            font-family: inherit;
+        }
+
+        .opt-btn:hover {
+            border-color: #3B82F6;
+            background: #EFF6FF;
+            transform: translateY(-2px);
+        }
+
+        .opt-badge {
+            width: 32px;
+            height: 32px;
+            background: #F1F5F9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: #475569;
+        }
+
+        .opt-btn.correct {
+            background: #DEF7EC !important;
+            border-color: #31C48D !important;
+            color: #03543F !important;
+        }
+
+        .opt-btn.correct .opt-badge {
+            background: #31C48D;
+            color: #FFF;
+        }
+
+        .opt-btn.wrong {
+            background: #FDE8E8 !important;
+            border-color: #F05252 !important;
+            color: #9B1C1C !important;
+        }
+
+        .opt-btn.wrong .opt-badge {
+            background: #F05252;
+            color: #FFF;
+        }
+
+        .feedback-card {
+            background: #EEF2FF;
+            border: 2px solid #C7D2FE;
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .feedback-card.show { display: block; }
+
+        .fb-title {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: #3730A3;
+            margin-bottom: 6px;
+        }
+
+        .fb-desc {
+            font-size: 1rem;
+            color: #4338CA;
+            line-height: 1.5;
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hint-btn {
+            background: #FEF3C7;
+            color: #92400E;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: #FFF;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            display: none;
+            font-family: inherit;
+        }
+
+        .next-btn.show { display: flex; align-items: center; gap: 8px; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-overlay.show { display: flex; }
+
+        .modal-box {
+            background: #FFF;
+            border-radius: 20px;
+            padding: 25px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .modal-title { font-size: 1.3rem; font-weight: 900; margin-bottom: 10px; color: #1E293B; }
+        .modal-desc { font-size: 1rem; color: #475569; margin-bottom: 20px; line-height: 1.5; }
+        .modal-close-btn {
+            background: #3B82F6; color: #FFF; border: none;
+            padding: 10px 20px; border-radius: 10px; font-weight: 900; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-app">
+    <div class="header-status">
+        <div class="status-item">
+            <span class="star-icon">⭐</span>
+            <span id="score">0</span>
+        </div>
+        <div class="status-item">
+            <span id="level-indicator">第 1 / 5 題</span>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+        </div>
+        <div class="status-item">
+            <span class="heart-icon">❤️</span>
+            <span id="lives">3</span>
+        </div>
+    </div>
+
+    <div class="question-card">
+        <div class="question-title">
+            <span>📌</span>
+            <span id="q-title-text">題目載入中...</span>
+        </div>
+
+        <div class="two-column-display">
+            <div class="horizontal-box">
+                <div class="box-label">題目橫式算式</div>
+                <div class="math-horizontal" id="horizontal-math">12.5 ÷ 0.8</div>
+            </div>
+
+            <div class="vertical-box">
+                <div class="box-label">倍大後的整數直式</div>
+                <div class="vertical-pink-container" id="vertical-container">
+                    <!-- 直式呈現區域 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="options-grid" id="options-container">
+        <!-- 動態按鈕 -->
+    </div>
+
+    <div class="feedback-card" id="feedback-box">
+        <div class="fb-title" id="fb-title">解析提示</div>
+        <div class="fb-desc" id="fb-desc">詳細說明...</div>
+    </div>
+
+    <div class="action-bar">
+        <button class="hint-btn" onclick="showHint()">💡 觀念小幫手</button>
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">下一題 ➔</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-title" id="modal-title">提示</div>
+        <div class="modal-desc" id="modal-desc">內容</div>
+        <button class="modal-close-btn" onclick="closeModal()">我明白了</button>
+    </div>
+</div>
+<script>
+    const questions = [
+        {
+            title: "看右側【倍大後的整數直式】，請問原算式的「真實餘數」是多少？",
+            horizontal: "12.5 ÷ 0.8",
+            quotient: "  1 5",
+            divisor: "8",
+            dividend: "1 2 5",
+            steps: [
+                "  8  ",
+                "----",
+                "  4 5",
+                "  4 0",
+                "----",
+                "    5"
+            ],
+            multiplyFactor: 10,
+            options: [
+                { label: "A", text: "5" },
+                { label: "B", text: "0.5" },
+                { label: "C", text: "0.05" },
+                { label: "D", text: "50" }
+            ],
+            answerIndex: 1, // B
+            explain: "直式將除數與被除數同時『倍大 10 倍』變成 125 ÷ 8。算出的直式餘數是 5，因此『真實餘數』要縮小 10 倍（乘以 0.1）：5 × 0.1 = 0.5。"
+        },
+        {
+            title: "看右側【倍大後的整數直式】，請問原本小數除法的正確「商與餘數」是多少？",
+            horizontal: "7.6 ÷ 0.9",
+            quotient: "    8",
+            divisor: "9",
+            dividend: "7 6",
+            steps: [
+                "7 2",
+                "---",
+                "  4"
+            ],
+            multiplyFactor: 10,
+            options: [
+                { label: "A", text: "商 = 8，餘數 = 4" },
+                { label: "B", text: "商 = 0.8，餘數 = 0.4" },
+                { label: "C", text: "商 = 8，餘數 = 0.4" },
+                { label: "D", text: "商 = 8，餘數 = 0.04" }
+            ],
+            answerIndex: 2, // C
+            explain: "直式倍大 10 倍計算，商保持不變（商 = 8）；直式餘數 4 要縮小 10 倍，真實餘數為 4 × 0.1 = 0.4。"
+        },
+        {
+            title: "看右側【倍大 100 倍後的整數直式】，請問原本小數除法的「真實餘數」是多少？",
+            horizontal: "4.35 ÷ 0.6",
+            quotient: "    7",
+            divisor: "60",
+            dividend: "4 3 5",
+            steps: [
+                "4 2 0",
+                "-----",
+                "  1 5"
+            ],
+            multiplyFactor: 100,
+            options: [
+                { label: "A", text: "0.15" },
+                { label: "B", text: "1.5" },
+                { label: "C", text: "15" },
+                { label: "D", text: "0.015" }
+            ],
+            answerIndex: 0, // A
+            explain: "直式同時倍大 100 倍成 435 ÷ 60，直式算出的餘數是 15。求真實餘數時要縮小 100 倍（乘以 0.01）：15 × 0.01 = 0.15。"
+        },
+        {
+            title: "看右側【倍大 100 倍後的整數直式】，請問原本算式的「真實餘數」是多少？",
+            horizontal: "9.8 ÷ 0.15",
+            quotient: "  6 5",
+            divisor: "15",
+            dividend: "9 8 0",
+            steps: [
+                "9 0  ",
+                "----",
+                "  8 0",
+                "  7 5",
+                "----",
+                "    5"
+            ],
+            multiplyFactor: 100,
+            options: [
+                { label: "A", text: "5" },
+                { label: "B", text: "0.5" },
+                { label: "C", text: "0.005" },
+                { label: "D", text: "0.05" }
+            ],
+            answerIndex: 3, // D
+            explain: "除數 0.15 位移兩位變成整數 15（倍大 100 倍），直式餘數 5 要乘以 0.01（縮小 100 倍），真實餘數為 0.05。"
+        },
+        {
+            title: "看右側【倍大後的整數直式】，請問原算式的正確「商與餘數」是多少？",
+            horizontal: "15.7 ÷ 1.2",
+            quotient: "  1 3",
+            divisor: "12",
+            dividend: "1 5 7",
+            steps: [
+                "1 2  ",
+                "----",
+                "  3 7",
+                "  3 6",
+                "----",
+                "    1"
+            ],
+            multiplyFactor: 10,
+            options: [
+                { label: "A", text: "商 = 13，餘數 = 1" },
+                { label: "B", text: "商 = 13，餘數 = 0.1" },
+                { label: "C", text: "商 = 1.3，餘數 = 0.1" },
+                { label: "D", text: "商 = 13，餘數 = 0.01" }
+            ],
+            answerIndex: 1, // B
+            explain: "倍大 10 倍計算後，商仍然是 13（不變）；直式餘數 1 縮小 10 倍後，真實餘數為 1 × 0.1 = 0.1。"
+        }
+    ];
+
+    let currentQ = 0;
+    let score = 0;
+    let lives = 3;
+    let autoNextTimer = null;
+
+    function initGame() {
+        currentQ = 0;
+        score = 0;
+        lives = 3;
+        document.getElementById('score').innerText = score;
+        document.getElementById('lives').innerText = lives;
+        loadQuestion();
+    }
+
+    function renderVertical(q) {
+        let html = `<div class="v-row">${q.quotient}</div>`;
+        html += `<div class="v-symbol-row"><span>${q.divisor}</span><div class="v-bracket">${q.dividend}</div></div>`;
+        q.steps.forEach(step => {
+            if (step.includes('---')) {
+                html += `<div class="v-division-line"></div>`;
+            } else {
+                html += `<div class="v-row">${step}</div>`;
+            }
+        });
+        return html;
+    }
+
+    function loadQuestion() {
+        if (autoNextTimer) clearTimeout(autoNextTimer);
+        const q = questions[currentQ];
+        
+        document.getElementById('level-indicator').innerText = `第 ${currentQ + 1} / ${questions.length} 題`;
+        document.getElementById('progress-fill').style.width = `${((currentQ + 1) / questions.length) * 100}%`;
+        document.getElementById('q-title-text').innerText = q.title;
+        document.getElementById('horizontal-math').innerText = q.horizontal;
+        document.getElementById('vertical-container').innerHTML = renderVertical(q);
+
+        const optsContainer = document.getElementById('options-container');
+        optsContainer.innerHTML = '';
+        
+        q.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn';
+            btn.onclick = () => checkAnswer(idx);
+            btn.innerHTML = `<div class="opt-badge">${opt.label}</div><span>${opt.text}</span>`;
+            optsContainer.appendChild(btn);
+        });
+
+        document.getElementById('feedback-box').classList.remove('show');
+        document.getElementById('next-btn').classList.remove('show');
+    }
+
+    function checkAnswer(selectedIdx) {
+        const q = questions[currentQ];
+        const buttons = document.querySelectorAll('.opt-btn');
+        buttons.forEach(b => b.style.pointerEvents = 'none');
+
+        const fbBox = document.getElementById('feedback-box');
+        const fbTitle = document.getElementById('fb-title');
+        const fbDesc = document.getElementById('fb-desc');
+
+        if (selectedIdx === q.answerIndex) {
+            buttons[selectedIdx].classList.add('correct');
+            score += 20;
+            document.getElementById('score').innerText = score;
+            
+            fbTitle.innerText = "✨ 答對了！觀念非常清晰！";
+            fbTitle.style.color = "#047857";
+            fbDesc.innerText = q.explain;
+            fbBox.classList.add('show');
+
+            document.getElementById('next-btn').classList.add('show');
+            autoNextTimer = setTimeout(() => {
+                nextQuestion();
+            }, 3000);
+        } else {
+            buttons[selectedIdx].classList.add('wrong');
+            buttons[q.answerIndex].classList.add('correct');
+            lives--;
+            document.getElementById('lives').innerText = lives;
+
+            fbTitle.innerText = "❌ 再想想看哦！";
+            fbTitle.style.color = "#B91C1C";
+            fbDesc.innerText = q.explain;
+            fbBox.classList.add('show');
+
+            document.getElementById('next-btn').classList.add('show');
+
+            if (lives <= 0) {
+                setTimeout(() => {
+                    showModal("遊戲結束", `生命值用完了！你的得分是 ${score} 分。`, () => {
+                        initGame();
+                    });
+                }, 1000);
+            }
+        }
+    }
+
+    function nextQuestion() {
+        if (autoNextTimer) clearTimeout(autoNextTimer);
+        currentQ++;
+        if (currentQ < questions.length) {
+            loadQuestion();
+        } else {
+            showModal("🎉 恭喜通關！", `你學會了「直式餘數縮小回真實餘數」的重要觀念！總得分：${score} 分！`, () => {
+                initGame();
+            });
+        }
+    }
+
+    function showHint() {
+        const q = questions[currentQ];
+        showModal("💡 觀念小幫手", `【關鍵解題口訣】\n1. 直式是把數字『倍大 ${q.multiplyFactor} 倍』後的整數計算。\n2. 商不會改變。\n3. 直式算出來的餘數被『倍大了 ${q.multiplyFactor} 倍』，要找回真實餘數，必須除以 ${q.multiplyFactor}（或乘以 ${1/q.multiplyFactor}）！`);
+    }
+
+    function showModal(title, desc, onCloseAction) {
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-desc').innerText = desc;
+        document.getElementById('modal-overlay').classList.add('show');
+        window.modalCloseCallback = onCloseAction;
+    }
+
+    function closeModal() {
+        document.getElementById('modal-overlay').classList.remove('show');
+        if (window.modalCloseCallback) {
+            window.modalCloseCallback();
+            window.modalCloseCallback = null;
+        }
+    }
+
+    window.onload = initGame;
+</script>
+</body>
+</html>
